@@ -4,7 +4,7 @@ buildscript {
     }
 
     dependencies {
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.7.10")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.20")
     }
 }
 
@@ -35,11 +35,12 @@ allprojects {
         maven("https://maven.enginehub.org/repo/")
         maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
         maven("https://maven.citizensnpcs.co/repo")
+        maven("https://nexuslite.gcnt.net/repos/other/")
     }
 
     dependencies {
         compileOnly("org.jetbrains:annotations:23.0.0")
-        compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.7.10")
+        compileOnly("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
 
         compileOnly(fileTree("lib") { include("*.jar") })
     }
