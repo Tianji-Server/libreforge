@@ -4,7 +4,7 @@ dependencies {
     }
     implementation("com.willfp:ModelEngineBridge:1.3.0")
 
-    compileOnly("com.willfp:eco:6.67.3")
+    compileOnly("com.willfp:eco:6.69.0")
     compileOnly("io.papermc.paper:paper-api:1.20.1-R0.1-SNAPSHOT")
     compileOnly("net.kyori:adventure-text-minimessage:4.14.0")
 
@@ -15,7 +15,7 @@ dependencies {
     }
     compileOnly("com.github.Zrips:Jobs:v4.17.2")
     compileOnly("com.github.MilkBowl:VaultAPI:1.7")
-    compileOnly("com.github.ben-manes.caffeine:caffeine:3.0.5")
+    compileOnly("com.github.ben-manes.caffeine:caffeine:3.1.8")
     compileOnly("com.github.brcdev-minecraft:shopgui-api:2.2.0")
     compileOnly("com.github.Gypopo:EconomyShopGUI-API:1.1.0")
     compileOnly("com.github.N0RSKA:ScytherAPI:55a")
