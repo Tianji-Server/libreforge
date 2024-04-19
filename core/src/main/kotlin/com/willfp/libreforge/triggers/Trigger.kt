@@ -33,10 +33,31 @@ abstract class Trigger(
         protected set
 
     /**
+     * If the listener is registered.
+     */
+    private var isListenerRegistered = false
+
+    /**
+     * The cached hashcode.
+     */
+    private val hashCode by lazy {
+        id.hashCode()
+    }
+
+    /**
      * Enable the trigger.
      */
     fun enable() {
         isEnabled = true
+
+        if (!this.isListenerRegistered) {
+            this.isListenerRegistered = true
+            plugin.runWhenEnabled {
+                plugin.eventManager.unregisterListener(this)
+                plugin.eventManager.registerListener(this)
+                postRegister()
+            }
+        }
     }
 
     @Deprecated(
@@ -140,14 +161,6 @@ abstract class Trigger(
         }
     }
 
-    final override fun onRegister() {
-        plugin.runWhenEnabled {
-            plugin.eventManager.unregisterListener(this)
-            plugin.eventManager.registerListener(this)
-            postRegister()
-        }
-    }
-
     open fun postRegister() {
         // Override when needed.
     }
@@ -159,6 +172,6 @@ abstract class Trigger(
     }
 
     override fun hashCode(): Int {
-        return id.hashCode()
+        return hashCode
     }
 }

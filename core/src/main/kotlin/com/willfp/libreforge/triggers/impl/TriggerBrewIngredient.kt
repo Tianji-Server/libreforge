@@ -1,5 +1,6 @@
 package com.willfp.libreforge.triggers.impl
 
+import com.github.benmanes.caffeine.cache.Caffeine
 import com.willfp.eco.core.gui.player
 import com.willfp.eco.core.recipe.parts.EmptyTestableItem
 import com.willfp.libreforge.plugin
@@ -13,9 +14,13 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.inventory.BrewEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.inventory.BrewerInventory
+import java.util.concurrent.TimeUnit
 
 object TriggerBrewIngredient : Trigger("brew_ingredient") {
-    private val playerCache = mutableMapOf<Location, Player>()
+    private val playerCache = Caffeine.newBuilder()
+        // Arbitrary long time
+        .expireAfterWrite(15, TimeUnit.MINUTES)
+        .build<Location, Player>()
 
     override val parameters = setOf(
         TriggerParameter.PLAYER,
@@ -34,7 +39,7 @@ object TriggerBrewIngredient : Trigger("brew_ingredient") {
             val newContents = inventory.contents
 
             if (!oldContents.contentEquals(newContents)) {
-                playerCache[location] = player
+                playerCache.put(location, player)
             }
         }
     }
@@ -43,7 +48,12 @@ object TriggerBrewIngredient : Trigger("brew_ingredient") {
     fun handle(event: BrewEvent) {
         val location = event.block.location
 
-        val player = playerCache[location] ?: return
+        val player = playerCache.getIfPresent(location) ?: return
+
+        if (!player.isOnline) {
+            playerCache.invalidate(location)
+            return
+        }
 
         val amount = (0..2).map { event.contents.getItem(it) }
             .count { !EmptyTestableItem().matches(it) }
@@ -57,6 +67,6 @@ object TriggerBrewIngredient : Trigger("brew_ingredient") {
             )
         )
 
-        playerCache.remove(location)
+        playerCache.invalidate(location)
     }
 }

@@ -51,6 +51,7 @@ object TriggerGroupStatic : TriggerGroup("static") {
         )
 
         fun dispatch(player: Player) {
+    
             val block = if (Prerequisite.HAS_PAPER.isMet && Prerequisite.HAS_1_20.isMet) {
                 player.getTargetBlockExact(plugin.configYml.getInt("raytrace-distance"), FluidCollisionMode.NEVER)
             } else null

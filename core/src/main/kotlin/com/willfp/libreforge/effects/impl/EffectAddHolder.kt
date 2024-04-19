@@ -35,13 +35,16 @@ object EffectAddHolder : Effect<HolderTemplate>("add_holder") {
 
     override fun onTrigger(config: Config, data: TriggerData, compileData: HolderTemplate): Boolean {
         val dispatcher = data.dispatcher
-        val duration = config.getIntFromExpression("duration", data)
+        val duration = config.getIntFromExpression("duration", data).coerceAtLeast(1)
         val holder = compileData.toHolder().nest(data.holder)
 
         holders[dispatcher.uuid] += holder
 
         plugin.scheduler.runLater(duration.toLong()) {
             holders[dispatcher.uuid] -= holder
+            if (holders[dispatcher.uuid].isEmpty()) {
+                holders -= dispatcher.uuid
+            }
         }
 
         return true

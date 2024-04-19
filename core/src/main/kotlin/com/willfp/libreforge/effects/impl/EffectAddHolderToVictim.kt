@@ -38,7 +38,7 @@ object EffectAddHolderToVictim : Effect<HolderTemplate>("add_holder_to_victim") 
     override fun onTrigger(config: Config, data: TriggerData, compileData: HolderTemplate): Boolean {
         val player = data.victim as? Player ?: return false
 
-        val duration = config.getIntFromExpression("duration", data)
+        val duration = config.getIntFromExpression("duration", data).coerceAtLeast(1)
         val holder = compileData.toHolder().nest(data.holder)
 
         holders[player.uniqueId] += holder
@@ -49,6 +49,7 @@ object EffectAddHolderToVictim : Effect<HolderTemplate>("add_holder_to_victim") 
                 holders -= player.uniqueId
             }
         }
+
 
         return true
     }
