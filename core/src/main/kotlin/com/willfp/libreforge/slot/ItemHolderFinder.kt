@@ -3,15 +3,17 @@ package com.willfp.libreforge.slot
 import com.github.benmanes.caffeine.cache.Cache
 import com.github.benmanes.caffeine.cache.Caffeine
 import com.willfp.libreforge.Dispatcher
-import com.willfp.libreforge.EmptyProvidedHolder.provider
 import com.willfp.libreforge.Holder
 import com.willfp.libreforge.HolderProvider
-import com.willfp.libreforge.ItemProvidedHolder
 import com.willfp.libreforge.TypedHolderProvider
 import com.willfp.libreforge.TypedProvidedHolder
 import com.willfp.libreforge.get
+import com.willfp.libreforge.ifType
+import com.willfp.libreforge.isType
 import com.willfp.libreforge.registerRefreshFunction
+import com.willfp.libreforge.slot.impl.NumericSlotType
 import org.bukkit.entity.LivingEntity
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -39,21 +41,6 @@ abstract class ItemHolderFinder<T : Holder> {
      * Find holders on an [entity] for a given [slot].
      */
     fun findHolders(entity: LivingEntity, slot: SlotType): List<TypedProvidedHolder<T>> {
-        /*
-        This little bit of hackery here is so that CombinedSlotTypes works well with the in_slot
-        condition. It means that if a CombinedSlotTypes is passed, it will be expanded into its
-        constituent SlotTypes, so each SlotType is checked individually.
-         */
-        if (slot is CombinedSlotTypes) {
-            // In case (somehow) there are recursive CombinedSlotTypes,
-            // we just do the process again for each one.
-            return slot.types.flatMap { findHolders(entity, it) }
-        }
-
-        return doFindHolders(entity, slot)
-    }
-
-    private fun doFindHolders(entity: LivingEntity, slot: SlotType): List<TypedProvidedHolder<T>> {
         val items = slot.getItems(entity)
 
         val holders = items.map { item ->
@@ -87,8 +74,15 @@ abstract class ItemHolderFinder<T : Holder> {
             return cache.get(dispatcher.uuid) {
                 val entity = dispatcher.get<LivingEntity>() ?: return@get emptyList()
 
-                SlotTypes.values()
-                    .flatMap { slot -> findHolders(entity, slot) }
+                val slots = SlotTypes.baseTypes.toMutableSet()
+
+                // Prevents double scanning of held item slot
+                dispatcher.ifType<Player> {
+                    slots.remove(NumericSlotType(it.inventory.heldItemSlot))
+                }
+
+                // Only check for non-combined slot types
+                slots.flatMap { slot -> findHolders(entity, slot) }
             }
         }
     }

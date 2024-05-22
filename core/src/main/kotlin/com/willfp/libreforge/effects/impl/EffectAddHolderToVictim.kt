@@ -17,6 +17,9 @@ import com.willfp.libreforge.registerGenericHolderProvider
 import com.willfp.libreforge.triggers.TriggerData
 import com.willfp.libreforge.triggers.TriggerParameter
 import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.entity.EntityDeathEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import java.util.UUID
 
 object EffectAddHolderToVictim : Effect<HolderTemplate>("add_holder_to_victim") {
@@ -50,7 +53,6 @@ object EffectAddHolderToVictim : Effect<HolderTemplate>("add_holder_to_victim") 
             }
         }
 
-
         return true
     }
 
@@ -69,5 +71,20 @@ object EffectAddHolderToVictim : Effect<HolderTemplate>("add_holder_to_victim") 
             effects,
             conditions
         )
+    }
+
+    internal fun getHolders(): Map<UUID, List<Holder>> {
+        return holders
+    }
+
+    @EventHandler
+    fun onQuit(event: PlayerQuitEvent) {
+        holders -= event.player.uniqueId
+    }
+
+    @EventHandler
+    fun onEntityDeath(event: EntityDeathEvent) {
+        if (event.entity is Player) return
+        holders.remove(event.entity.uniqueId)
     }
 }
