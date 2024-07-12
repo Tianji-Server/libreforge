@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: ./gradlew clean build
       - name: Jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: libreforge
           path: build/libs
